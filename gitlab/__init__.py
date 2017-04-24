@@ -1446,8 +1446,8 @@ class Gitlab(object):
         :param filepath: The path the file
         :return: raw file contents
         """
-        data = {"filepath": filepath}
-        request = requests.get("{0}/{1}/repository/blobs/{2}".format(self.projects_url, project_id, sha1),
+        data = {"ref": sha1}
+        request = requests.get("{0}/{1}/repository/files/{2}".format(self.projects_url, project_id, filepath),
                                params=data, verify=self.verify_ssl, auth=self.auth,
                                headers=self.headers)
         if request.status_code == 200:
