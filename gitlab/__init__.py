@@ -454,12 +454,13 @@ class Gitlab(object):
         else:
             return False
 
-    def addprojectmember(self, project_id, user_id, access_level):
+    def addprojectmember(self, project_id, user_id, access_level, expires_at=None):
         """Adds a project member to a project
 
         :param project_id: project id
         :param user_id: user id
         :param access_level: access level, see gitlab help to know more
+        :param expires_at: string as yyyy-mm-dd that indicates expiry
         :return: True if success
         """
         if isinstance(access_level, basestring):
@@ -472,6 +473,8 @@ class Gitlab(object):
             else:
                 access_level = 10
         data = {"id": project_id, "user_id": user_id, "access_level": access_level}
+        if expires_at:
+            data['expires_at'] = expires_at
 
         request = requests.post("{0}/{1}/members".format(self.projects_url, project_id),
                                 headers=self.headers, data=data, verify=self.verify_ssl, auth=self.auth)
@@ -480,7 +483,7 @@ class Gitlab(object):
         else:
             return False
 
-    def editprojectmember(self, project_id, user_id, access_level):
+    def editprojectmember(self, project_id, user_id, access_level, expires_at=None):
         """Edit a project member
 
         :param project_id: project id
@@ -498,6 +501,8 @@ class Gitlab(object):
             access_level = 10
         data = {"id": project_id, "user_id": user_id,
                 "access_level": access_level}
+        if expires_at:
+            data['expires_at'] = expires_at
 
         request = requests.put("{0}/{1}/members/{2}".format(self.projects_url, project_id, user_id),
                                headers=self.headers, data=data, verify=self.verify_ssl, auth=self.auth)
@@ -1447,7 +1452,7 @@ class Gitlab(object):
         :return: raw file contents
         """
         data = {"ref": sha1}
-        request = requests.get("{0}/{1}/repository/files/{2}".format(self.projects_url, project_id, filepath),
+        request = requests.get("{0}/{1}/repository/files/{2}/raw".format(self.projects_url, project_id, filepath),
                                params=data, verify=self.verify_ssl, auth=self.auth,
                                headers=self.headers)
         if request.status_code == 200:
